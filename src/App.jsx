@@ -7,6 +7,7 @@ function App() {
 
   return (
     <>
+      <title>MakiSec</title>
       <div className="card">
         <h1>MakiSec</h1>
         <p>Cloud and Security student</p>
