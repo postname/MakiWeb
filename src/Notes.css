@@ -27,9 +27,14 @@
 
 /* Sidebar buttons (folders and files) */
 .notes-folder-btn,
+.notes-file-btn,
+.notes-sidebar-top .btn {
+  background: #23243a !important;
+  color: #fff !important;
+}
+
+.notes-folder-btn,
 .notes-file-btn {
-  background: #23243a;
-  color: #fff;
   border: none;
   border-radius: 4px;
   width: 100%;

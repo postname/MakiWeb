@@ -23,14 +23,20 @@ const firstFile = firstFolder ? Object.keys(notesByFolder[firstFolder])[0] : nul
 function Notes() {
   const [selectedFolder, setSelectedFolder] = useState(firstFolder)
   const [selectedFile, setSelectedFile] = useState(firstFile)
-  const [expandedFolders, setExpandedFolders] = useState(
-    folderNames.reduce((acc, folder) => ({ ...acc, [folder]: true }), {})
-  )
+  const [expandedFolders, setExpandedFolders] = useState(() => {
+    const saved = localStorage.getItem('notes_expandedFolders')
+    if (saved) return JSON.parse(saved)
+    return folderNames.reduce((acc, folder) => ({ ...acc, [folder]: true }), {})
+  })
   const [fontSize, setFontSize] = useState(0.8) // or 0.8, depending on your preference
 
   useEffect(() => {
     document.title = "Notes"
   }, [])
+
+  useEffect(() => {
+    localStorage.setItem('notes_expandedFolders', JSON.stringify(expandedFolders))
+  }, [expandedFolders])
 
   const content =
     selectedFolder && selectedFile
