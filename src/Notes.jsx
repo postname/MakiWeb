@@ -2,8 +2,8 @@ import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Link } from 'react-router-dom'
 import './App.css'
+import './Notes.css'
 
-// Import all markdown files in the notes directory and subdirectories
 const files = import.meta.glob('/src/notes/**/*.md', { as: 'raw', eager: true })
 
 // Organize files by folder
@@ -24,81 +24,90 @@ const firstFile = firstFolder ? Object.keys(notesByFolder[firstFolder])[0] : nul
 function Notes() {
   const [selectedFolder, setSelectedFolder] = useState(firstFolder)
   const [selectedFile, setSelectedFile] = useState(firstFile)
+  const [expandedFolders, setExpandedFolders] = useState(
+    folderNames.reduce((acc, folder) => ({ ...acc, [folder]: true }), {})
+  )
 
   const content =
     selectedFolder && selectedFile
       ? notesByFolder[selectedFolder][selectedFile]
       : ''
 
+  const handleFolderClick = (folder) => {
+    setExpandedFolders((prev) => ({
+      ...prev,
+      [folder]: !prev[folder],
+    }))
+    // If collapsing, don't change selection. If expanding, select first file if none selected.
+    if (!expandedFolders[folder] && Object.keys(notesByFolder[folder]).length > 0) {
+      setSelectedFolder(folder)
+      setSelectedFile(Object.keys(notesByFolder[folder])[0])
+    }
+  }
+
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#23243a' }}>
+    <div style={{ display: 'flex', height: '100vh', background: '#23243a', overflow: 'hidden' }}>
       {/* Sidebar */}
-      <div style={{
-        width: 220, background: '#181825', color: '#fff', padding: '1em 0.5em', display: 'flex', flexDirection: 'column'
-      }}>
-        <Link to="/" className="btn" style={{ marginBottom: '1em', alignSelf: 'flex-start' }}>🏠 Home</Link>
-        {folderNames.map(folder => (
-          <div key={folder} style={{ marginBottom: 8 }}>
-            <div
-              className={`btn${folder === selectedFolder ? ' pressed' : ''}`}
-              style={{
-                background: folder === selectedFolder ? '#3a3f5c' : '#23243a',
-                width: '100%',
-                marginBottom: 4,
-                justifyContent: 'flex-start'
-              }}
-              onClick={() => {
-                setSelectedFolder(folder)
-                setSelectedFile(Object.keys(notesByFolder[folder])[0])
-              }}
-            >
-              📁 {folder}
-            </div>
-            {/* Files */}
-            {folder === selectedFolder && Object.keys(notesByFolder[folder]).map(file => (
-              <div
-                key={file}
-                className={`btn${file === selectedFile ? ' pressed' : ''}`}
-                style={{
-                  background: file === selectedFile ? '#6c3483' : '#23243a',
-                  width: '95%',
-                  margin: '2px 0 2px 1em',
-                  justifyContent: 'flex-start',
-                  fontWeight: file === selectedFile ? 'bold' : 'normal'
-                }}
-                onClick={() => setSelectedFile(file)}
+      <div className="notes-sidebar">
+        <div className="notes-sidebar-top">
+          <Link to="/" className="btn" style={{ marginBottom: '1em', alignSelf: 'flex-start' }}>🏠 Home</Link>
+        </div>
+        <div className="notes-sidebar-list">
+          {folderNames.map(folder => (
+            <div key={folder} className="notes-folder">
+              <button
+                className={`notes-folder-btn${folder === selectedFolder ? ' pressed' : ''}`}
+                onClick={() => handleFolderClick(folder)}
+                type="button"
               >
-                📝 {file}
-              </div>
-            ))}
-          </div>
-        ))}
+                <span style={{
+                  display: 'inline-block',
+                  width: 18,
+                  textAlign: 'center',
+                  marginRight: 6,
+                  fontSize: '1.1em'
+                }}>
+                  {expandedFolders[folder] ? '▼' : '▶'}
+                </span>
+                <span>{folder}</span>
+              </button>
+              {expandedFolders[folder] && (
+                <div>
+                  {Object.keys(notesByFolder[folder]).map(file => (
+                    <button
+                      key={file}
+                      className={`notes-file-btn${folder === selectedFolder && file === selectedFile ? ' pressed' : ''}`}
+                      onClick={() => {
+                        setSelectedFolder(folder)
+                        setSelectedFile(file)
+                      }}
+                      type="button"
+                    >
+                      {file}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
       {/* Main content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#f8fafc' }}>
+      <div className="notes-main">
         {/* Top bar */}
-        <div style={{
-          height: 56, background: '#3a3f5c', color: '#fff', display: 'flex', alignItems: 'center', padding: '0 1.5em', fontWeight: 'bold', fontSize: '1.1em'
-        }}>
+        <div className="notes-topbar">
           <span style={{ fontSize: '1.5em', marginRight: '0.5em' }}>📝</span>
           Notes App
           {selectedFile && (
-            <span style={{ marginLeft: '2em', fontWeight: 'normal', fontSize: '1em' }}>
+            <span style={{ marginLeft: '2em', fontWeight: 'normal', fontSize: '1em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '60vw' }}>
               {selectedFile}
             </span>
           )}
         </div>
         {/* Preview */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1em', overflow: 'auto' }}>
+        <div className="notes-preview-container">
           {content ? (
-            <div style={{
-              textAlign: 'left',
-              background: '#fff',
-              borderRadius: 6,
-              padding: '1em',
-              border: '1px solid #e0e7ff',
-              boxShadow: '0 1px 4px rgba(60,72,88,0.06)'
-            }}>
+            <div className="notes-preview">
               <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           ) : (
