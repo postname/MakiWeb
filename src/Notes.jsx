@@ -26,7 +26,7 @@ function Notes() {
   const [expandedFolders, setExpandedFolders] = useState(
     folderNames.reduce((acc, folder) => ({ ...acc, [folder]: true }), {})
   )
-  const [fontSize, setFontSize] = useState(1.1) // em
+  const [fontSize, setFontSize] = useState(0.8) // or 0.8, depending on your preference
 
   useEffect(() => {
     document.title = "Notes"
