@@ -1,9 +1,14 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { FaLinkedin, FaGithub } from 'react-icons/fa'
+import { useEffect } from 'react'
 import Notes from './Notes'
 import './App.css'
 
 function Home() {
+  useEffect(() => {
+    document.title = "Home"
+  }, [])
+
   return (
     <div className="card">
       <h1>MakiSec</h1>
